@@ -17,7 +17,7 @@ frameworks (hint: use time or timeit).
 
 
 ## Environment Setup
->> note: if you want to isolate environment please create python (virtual) environment first. See in [create virtual environment](https://docs.python.org/3/library/venv.html#creating-virtual-environments)
+>> note: if you want to isolate environment please create python (virtual) environment first. See in [create virtual environment](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/)
 
 Follow these steps to set up your environment:
 
