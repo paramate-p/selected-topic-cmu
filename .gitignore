@@ -164,3 +164,4 @@ cython_debug/
 /week1/nlpenv
 /week1/test.py
 *.txt
+*.DS_Store
