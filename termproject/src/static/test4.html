@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MinuteMade - Text Summarization</title>
+  <style>
+    :root {
+      --primary-color: #1e293b;    /* Main background */
+      --secondary-color: #334155;  /* Secondary background or border */
+      --accent-color: #4ade80;     /* Main accent (green) */
+      --text-color: #e2e8f0;       /* Light text color */
+      --light-text: #94a3b8;       /* Lighter text color */
+      --card-bg: #1e293b;          /* Card background */
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    body {
+      background-color: var(--primary-color);
+      color: var(--text-color);
+      min-height: 100vh;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    header {
+      background-color: rgba(15, 23, 42, 0.8);
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 1000;
+      backdrop-filter: blur(10px);
+    }
+    .logo {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent-color);
+    }
+
+    /* Full-page Hero Section */
+    .hero {
+      height: 100vh;               /* Full viewport height */
+      width: 100%;                 /* Full width */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      background: linear-gradient(135deg, #1e293b, #0f172a);
+    }
+    .hero-content {
+      width: 100%;
+      max-width: 800px;            /* Optional: limit text width */
+      padding: 0 1rem;
+    }
+    .hero h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      background: linear-gradient(45deg, var(--accent-color), #60a5fa);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -1px;
+    }
+    .hero p {
+      font-size: 1.2rem;
+      color: var(--light-text);
+      margin: 0 auto 2rem;
+      line-height: 1.4;
+    }
+    .center-btn {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    /* BUTTON STYLES */
+    .btn {
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    .btn-primary {
+      background-color: var(--accent-color);
+      color: var(--primary-color);
+    }
+    .btn-primary:hover {
+      background-color: #86efac;
+    }
+
+    /* Content Container for Remaining Sections */
+    .content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    /* Card-like Sections */
+    .step-card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      padding: 2rem;
+      margin: 2rem 0;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    .step-card h2 {
+      margin-bottom: 1rem;
+      font-size: 1.5rem;
+      color: var(--accent-color);
+      text-align: center;
+    }
+    .step-card p {
+      color: var(--light-text);
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    /* Model Selection */
+    .model-select {
+      margin-top: 1rem;
+      text-align: center;
+    }
+    .model-select select {
+      width: 60%;
+      padding: 0.5rem 1rem;
+      border-radius: 8px;
+      background-color: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--secondary-color);
+      color: var(--text-color);
+      font-size: 1rem;
+      appearance: none;
+      -webkit-appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 1rem;
+    }
+    .model-select select:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    /* Drag and Drop Area */
+    .drag-drop-area {
+      border: 2px dashed var(--light-text);
+      border-radius: 8px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 1rem;
+    }
+    .drag-drop-area p {
+      color: var(--light-text);
+      margin-bottom: 1rem;
+    }
+    .drag-drop-area:hover,
+    .drag-drop-area.active {
+      border-color: var(--accent-color);
+      background-color: rgba(74, 222, 128, 0.05);
+    }
+
+    /* Text Input Area */
+    .text-input-area {
+      margin-top: 1rem;
+      text-align: center;
+    }
+    .text-input-area textarea {
+      width: 100%;
+      height: 150px;
+      padding: 1rem;
+      border-radius: 8px;
+      background-color: rgba(15, 23, 42, 0.8);
+      border: 1px solid var(--secondary-color);
+      color: var(--text-color);
+      resize: vertical;
+      font-size: 1rem;
+    }
+    .text-input-area textarea:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    /* Loading Message */
+    .loading-message {
+      display: none;
+      text-align: center;
+      margin: 1rem 0;
+      color: var(--light-text);
+    }
+
+    /* Summary Result */
+    .summary-result {
+      display: none;
+      margin-top: 1rem;
+      text-align: center;
+    }
+    .summary-result p {
+      color: var(--accent-color);
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+    .summary-result pre {
+      background-color: rgba(15, 23, 42, 0.8);
+      padding: 1rem;
+      border-radius: 8px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      font-family: 'JetBrains Mono', monospace;
+      border-left: 3px solid var(--accent-color);
+      color: var(--text-color);
+      text-align: left;
+      max-width: 100%;
+    }
+
+    /* Hide default file input */
+    input[type="file"] {
+      display: none;
+    }
+
+    footer {
+      background-color: rgba(15, 23, 42, 0.8);
+      padding: 1rem;
+      text-align: center;
+      color: var(--light-text);
+      margin-top: 3rem;
+    }
+
+    /* Slower Reveal Animation */
+    .reveal {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 1.2s ease-out, transform 1.2s ease-out;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Ensure uploadSection is not hidden behind the fixed header */
+    #uploadSection {
+      scroll-margin-top: 120px; /* Adjust this value as needed */
+    }
+  </style>
+</head>
+<body>
+  <!-- Fixed Header -->
+  <header>
+    <div class="logo">MinuteMade</div>
+  </header>
+
+  <!-- Full-page Hero Section (Full Width) -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1>MinuteMade</h1>
+      <p>Fast, concise meeting summaries of your meetings in just a few clicks. Simply choose your preferred model, upload your audio or text, and receive rapid, precise results—saving you time and keeping your team informed effortlessly.</p>
+      <div class="center-btn">
+        <!-- "Get Started" Button -->
+        <button class="btn btn-primary" id="getStartedBtn">Get Started</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Content Container for Remaining Sections -->
+  <div class="content">
+    <!-- Step 1: Select Model -->
+    <section class="step-card reveal" id="uploadSection">
+      <h2>Step 1: Select Model</h2>
+      <p>Choose which model to use for summarizing your text or audio transcript.</p>
+      <div class="model-select">
+        <select id="modelSelect">
+          <option value="t5">T5</option>
+          <option value="led">Longformer</option>
+          <option value="chatgpt">ChatGPT-4o-mini</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Option 1: Transcribe Audio -->
+    <section class="step-card reveal">
+      <h2>Option 1: Use Audio</h2>
+      <p>Drag and drop your audio file below to transcribe it using our Whisper API.</p>
+      <div class="drag-drop-area" id="audioDropArea">
+        <p>Drag & drop audio file here or click to upload</p>
+        <input type="file" id="audioInput" accept="audio/*" />
+      </div>
+      <p style="color: var(--accent-color); font-size: 0.9rem;" id="audioStatus"></p>
+    </section>
+
+    <!-- Option 2: Provide Text -->
+    <section class="step-card reveal">
+      <h2>Option 2: Provide Text</h2>
+      <p>Enter text manually or upload a .txt file for summarization. (Disabled if you use audio)</p>
+      <div class="text-input-area">
+        <textarea id="textInput" placeholder="Paste your text here..."></textarea>
+        <br />
+        <!-- "Upload .txt File" styled as a green button -->
+        <label class="btn btn-primary" for="textFileInput">Upload .txt File</label>
+        <input type="file" id="textFileInput" accept=".txt" />
+        <!-- Status paragraph for text file uploads -->
+        <p id="textFileStatus" style="color: var(--accent-color); font-size: 0.9rem;"></p>
+      </div>
+    </section>
+
+    <!-- Summarize Button -->
+    <div class="center-btn reveal">
+      <!-- "Summarize" button -->
+      <button class="btn btn-primary" id="summarizeBtn">Summarize</button>
+    </div>
+
+    <!-- Loading Message -->
+    <div class="loading-message" id="loadingMessage">
+      <p>This may take some time to process your request. Please wait...</p>
+    </div>
+
+    <!-- Summary Result -->
+    <div class="summary-result" id="summaryResult">
+      <p>Done! Here is your summary:</p>
+      <pre id="summaryText"></pre>
+    </div>
+  </div>
+
+  <footer>
+    <p>&copy; 2025 MinuteMade. All rights reserved.</p>
+  </footer>
+
+  <script>
+    // DOM Elements
+    const audioDropArea = document.getElementById('audioDropArea');
+    const audioInput = document.getElementById('audioInput');
+    const audioStatus = document.getElementById('audioStatus');
+    const textFileInput = document.getElementById('textFileInput');
+    const textFileStatus = document.getElementById('textFileStatus');
+    const textInput = document.getElementById('textInput');
+    const modelSelect = document.getElementById('modelSelect');
+    const summarizeBtn = document.getElementById('summarizeBtn');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const summaryResult = document.getElementById('summaryResult');
+    const summaryText = document.getElementById('summaryText');
+    const getStartedBtn = document.getElementById('getStartedBtn');
+
+    // Global variable for transcribed text (if using audio)
+    let transcribedText = "";
+
+    // ==========================
+    // AUDIO DRAG & DROP LOGIC
+    // ==========================
+    audioDropArea.addEventListener('click', () => {
+      audioInput.click();
+    });
+    audioDropArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      audioDropArea.classList.add('active');
+    });
+    audioDropArea.addEventListener('dragleave', () => {
+      audioDropArea.classList.remove('active');
+    });
+    audioDropArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      audioDropArea.classList.remove('active');
+      const files = e.dataTransfer.files;
+      audioInput.files = files;
+      handleAudioUpload(files[0]);
+    });
+    audioInput.addEventListener('change', (e) => {
+      if (e.target.files[0]) {
+        handleAudioUpload(e.target.files[0]);
+      }
+    });
+
+    // Upload audio file and transcribe
+    async function handleAudioUpload(file) {
+      try {
+        audioStatus.textContent = "Uploading and transcribing audio...";
+        // Disable text input and file input for .txt if audio is used
+        textInput.disabled = true;
+        textFileInput.disabled = true;
+
+        // Example: posting to an API endpoint named /transcribe
+        const formData = new FormData();
+        formData.append("file", file);
+        const response = await fetch("/transcribe", {
+          method: "POST",
+          body: formData
+        });
+        if (!response.ok) {
+          const errorData = await response.json();
+          audioStatus.textContent = "Error: " + (errorData.error || response.statusText);
+          return;
+        }
+        const data = await response.json();
+        if (data.error) {
+          audioStatus.textContent = "Error: " + data.error;
+          return;
+        }
+        transcribedText = data.transcript;
+        audioStatus.textContent = "Audio transcribed successfully. You can now Summarize.";
+      } catch (err) {
+        audioStatus.textContent = "Error: " + err.message;
+      }
+    }
+
+    // ==========================
+    //  TEXT FILE UPLOAD LOGIC
+    // ==========================
+    textFileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file && !textInput.disabled) {
+        // Show "uploading" status
+        textFileStatus.textContent = "Uploading file...";
+
+        // Use FileReader to read local .txt
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          // Once done, show the text in the textarea
+          textInput.value = evt.target.result;
+          textFileStatus.textContent = "Done!";
+        };
+        reader.onerror = function() {
+          textFileStatus.textContent = "Error reading file!";
+        };
+        reader.readAsText(file);
+      }
+    });
+
+    // ==========================
+    //   SUMMARIZE BUTTON LOGIC
+    // ==========================
+    summarizeBtn.addEventListener('click', async () => {
+      loadingMessage.style.display = 'block';
+      summaryResult.style.display = 'none';
+      summaryText.textContent = "";
+
+      // If we have audio text, use that. Otherwise, use what's in the text area
+      let finalText = transcribedText.trim() || textInput.value.trim();
+      if (!finalText) {
+        loadingMessage.style.display = 'none';
+        alert("No text available to summarize. Please provide text or audio.");
+        return;
+      }
+
+      // Determine endpoint based on model selection
+      let endpoint = "";
+      const model = modelSelect.value;
+      if (model === "t5") {
+        endpoint = "/summarize/t5";
+      } else if (model === "led") {
+        endpoint = "/summarize/led";
+      } else {
+        endpoint = "/summarize/chatgpt";
+      }
+
+      try {
+        const response = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: finalText })
+        });
+        loadingMessage.style.display = 'none';
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          alert("Error: " + (errorData.error || response.statusText));
+          return;
+        }
+        const data = await response.json();
+        if (data.error) {
+          alert("Error: " + data.error);
+          return;
+        }
+
+        // Display the summary
+        summaryResult.style.display = 'block';
+        summaryText.textContent = data.summary || "(No summary returned)";
+      } catch (err) {
+        loadingMessage.style.display = 'none';
+        alert("Error: " + err.message);
+      }
+    });
+
+    // ==========================
+    //  GET STARTED BUTTON SCROLL
+    // ==========================
+    getStartedBtn.addEventListener('click', () => {
+      document.getElementById("uploadSection").scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // ==========================
+    //  REVEAL ON SCROLL ANIMATION
+    // ==========================
+    document.addEventListener("DOMContentLoaded", function() {
+      const reveals = document.querySelectorAll('.reveal');
+      const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      reveals.forEach(reveal => observer.observe(reveal));
+    });
+  </script>
+</body>
+</html>
